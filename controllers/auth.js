@@ -11,17 +11,17 @@ exports.register = async (req, res) => {
     if (userExists)
       return res.json({
         success: false,
-        message: "User Already Exists"
+        message: "User Already Exists",
       });
     const newUserData = {
       ...body,
-      role: "1"
+      role: "1",
     };
     const user = await new User(newUserData);
     const newUser = await user.save();
     if (newUser) {
       await res.json({
-        success: true
+        success: true,
       });
     } else {
       await res.json({ success: false, message: "Something went wrong!" });
@@ -36,16 +36,16 @@ exports.createAdmin = async (req, res) => {
     if (userExists)
       return res.json({
         message: "User Already Exists",
-        success: false
+        success: false,
       });
     const password = generator.generate({
       length: 8,
-      numbers: true
+      numbers: true,
     });
     const user = await new User({
       ...req.body,
       role: "2",
-      password
+      password,
     });
     const newUser = await user.save();
     if (newUser) {
@@ -59,18 +59,18 @@ exports.createAdmin = async (req, res) => {
           <p> Please use following email & password to login</p>
           <h3>Email: ${email}</h3>
           <h3>Password: ${password}</h3>
-        `
+        `,
       };
 
       sendEmail(emailData);
       await res.json({
         success: true,
-        message: `Admin created & email sent to the user with credentials`
+        message: `Admin created & email sent to the user with credentials`,
       });
     } else {
       await res.json({
         success: false,
-        message: "Could No Create!"
+        message: "Could No Create!",
       });
     }
   } catch (e) {
@@ -83,7 +83,7 @@ exports.editProfile = async (req, res) => {
     const userUpdate = await User.findByIdAndUpdate(
       userId,
       {
-        ...body
+        ...body,
       },
       { new: true }
     );
@@ -98,7 +98,7 @@ exports.editProfile = async (req, res) => {
         country,
         mobileNo,
         passportNo,
-        profileImage
+        profileImage,
       } = userUpdate;
       await res.json({
         success: true,
@@ -113,8 +113,8 @@ exports.editProfile = async (req, res) => {
           address,
           country,
           mobileNo,
-          profileImage
-        }
+          profileImage,
+        },
       });
     } else {
       await res.json({ success: false, message: "Could not Edit!" });
@@ -130,8 +130,8 @@ exports.editProfileImage = async (req, res) => {
       userId,
       {
         profileImage: {
-          filename: req.file.filename
-        }
+          filename: req.file.filename,
+        },
       },
       { new: true }
     ).populate(
@@ -150,7 +150,7 @@ exports.editProfileImage = async (req, res) => {
         address,
         country,
         mobileNo,
-        profileImage
+        profileImage,
       } = userUpdate;
       await res.json({
         success: true,
@@ -166,8 +166,8 @@ exports.editProfileImage = async (req, res) => {
           address,
           country,
           mobileNo,
-          profileImage
-        }
+          profileImage,
+        },
       });
     } else {
       await res.json({ success: false, message: "Could not Edit!" });
@@ -179,15 +179,8 @@ exports.editProfileImage = async (req, res) => {
 exports.registerAdmin = async (req, res) => {
   const { secret } = req.query;
   if (secret === process.env.JWT_SECRET) {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      address,
-      country,
-      mobileNo
-    } = req.body;
+    const { firstName, lastName, email, password, address, country, mobileNo } =
+      req.body;
     if (
       firstName &&
       lastName &&
@@ -201,30 +194,30 @@ exports.registerAdmin = async (req, res) => {
       if (userExists)
         return res.json({
           success: false,
-          message: "User Already Exists"
+          message: "User Already Exists",
         });
       const newUserData = {
         ...req.body,
-        role: "2"
+        role: "2",
       };
       const user = await new User(newUserData);
       const newUser = await user.save();
       if (newUser) {
         await res.json({
           success: true,
-          message: "Admin User Created Successfully!"
+          message: "Admin User Created Successfully!",
         });
       }
     } else {
       await res.json({
         success: false,
-        message: "Some Fields are missing!"
+        message: "Some Fields are missing!",
       });
     }
   } else {
     await res.status(403).json({
       success: false,
-      message: "Could not create Admin User"
+      message: "Could not create Admin User",
     });
   }
 };
@@ -234,13 +227,13 @@ exports.login = (req, res) => {
   User.findOne({ email }, (err, user) => {
     if (err || !user) {
       return res.status(401).json({
-        message: "User does not exist"
+        message: "User does not exist",
       });
     }
 
     if (!user.authenticate(password)) {
       return res.status(401).json({
-        message: "Email/Password does not match"
+        message: "Email/Password does not match",
       });
     }
     //Generating Key
@@ -254,7 +247,7 @@ exports.login = (req, res) => {
       address,
       country,
       mobileNo,
-      profileImage
+      profileImage,
     } = user;
 
     const authToken = jwt.sign({ _id, role }, process.env.JWT_SECRET);
@@ -268,11 +261,11 @@ exports.login = (req, res) => {
       address,
       country,
       mobileNo,
-      profileImage
+      profileImage,
     };
     return res.json({
       authToken,
-      user: loggedInUser
+      user: loggedInUser,
     });
   });
 };
@@ -281,7 +274,7 @@ exports.isAdmin = (req, res, next) => {
   let admin = req.auth && req.auth.role === "2";
   if (!admin) {
     return res.status(403).json({
-      error: "You are Not Authorized to perform this action"
+      error: "You are Not Authorized to perform this action",
     });
   }
   next();
@@ -290,7 +283,7 @@ exports.isUser = (req, res, next) => {
   let user = req.auth && req.auth.role === "1";
   if (!user) {
     return res.status(403).json({
-      error: "You are Not Authorized to perform this action"
+      error: "You are Not Authorized to perform this action",
     });
   }
   next();
@@ -298,7 +291,7 @@ exports.isUser = (req, res, next) => {
 
 exports.requireSignin = expressjwt({
   secret: process.env.JWT_SECRET,
-  userProperty: "auth"
+  userProperty: "auth",
 });
 
 // add forgotPassword and resetPassword methods
@@ -314,7 +307,7 @@ exports.forgotPassword = (req, res) => {
     // if err or no user
     if (err || !user)
       return res.status("401").json({
-        error: "User with this email does not exist!"
+        error: "User with this email does not exist!",
       });
 
     // generate a token with user id and secret
@@ -327,7 +320,7 @@ exports.forgotPassword = (req, res) => {
     const emailData = {
       to: email,
       subject: "Password Reset Instructions",
-      html: `<p>Please use the following link to reset your password:</p> <p>${process.env.CLIENT_URL}/auth/reset-password/${token}</p>`
+      html: `<p>Please use the following link to reset your password:</p> <p>${process.env.CLIENT_URL}/auth/reset-password/${token}</p>`,
     };
 
     return user.updateOne({ resetPasswordLink: token }, (err, success) => {
@@ -336,7 +329,7 @@ exports.forgotPassword = (req, res) => {
       } else {
         sendEmail(emailData);
         return res.status(200).json({
-          message: `Email has been sent with reset password link.`
+          message: `Email has been sent with reset password link.`,
         });
       }
     });
@@ -351,12 +344,12 @@ exports.resetPassword = (req, res) => {
     if (err || !user)
       return res.json({
         success: false,
-        message: "Invalid Link!"
+        message: "Invalid Link!",
       });
 
     const updatedFields = {
       password: newPassword,
-      resetPasswordLink: ""
+      resetPasswordLink: "",
     };
 
     Object.assign(user, updatedFields);
@@ -365,12 +358,12 @@ exports.resetPassword = (req, res) => {
     user.save((err, result) => {
       if (err) {
         return res.status(400).json({
-          error: err
+          error: err,
         });
       }
       res.json({
         success: true,
-        message: `Great! You can login with new Password Now.`
+        message: `Great! You can login with new Password Now.`,
       });
     });
   });
@@ -383,17 +376,17 @@ exports.changePassword = (req, res) => {
     if (err || !user)
       return res.json({
         success: false,
-        message: "Something Went Wrong!"
+        message: "Something Went Wrong!",
       });
     if (!user.authenticate(oldPassword)) {
       return res.json({
         success: false,
-        message: "Old password is not correct!"
+        message: "Old password is not correct!",
       });
     }
 
     const updatedFields = {
-      password: newPassword
+      password: newPassword,
     };
 
     Object.assign(user, updatedFields);
@@ -402,12 +395,12 @@ exports.changePassword = (req, res) => {
       if (err) {
         return res.json({
           success: false,
-          message: "Something Went Wrong!"
+          message: "Something Went Wrong!",
         });
       }
       res.json({
         success: true,
-        message: `Password Changed Successfully!`
+        message: `Password Changed Successfully!`,
       });
     });
   });
@@ -423,12 +416,12 @@ exports.getAllAdmins = async (req, res) => {
     );
     await res.json({
       success: true,
-      admins
+      admins,
     });
   } catch (e) {
     await res.json({
       success: false,
-      message: "Something Went Wrong!"
+      message: "Something Went Wrong!",
     });
   }
 };
@@ -439,18 +432,18 @@ exports.removeAdmin = async (req, res) => {
     if (admin) {
       await res.json({
         success: true,
-        message: "Admin Removed Successfully!"
+        message: "Admin Removed Successfully!",
       });
     } else {
       await res.json({
         success: false,
-        message: "Could Not Remove Admin!"
+        message: "Could Not Remove Admin!",
       });
     }
   } catch (e) {
     await res.json({
       success: false,
-      message: "Something Went Wrong!"
+      message: "Something Went Wrong!",
     });
   }
 };

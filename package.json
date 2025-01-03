@@ -1,13 +1,10 @@
 {
-  "name": "flight-system",
+  "name": "flight-app",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/rafaewaqarqazi/flight-system-client.git",
-  "author": "rafaewaqarqazi <rafaewaqar@gmail.com>",
-  "license": "MIT",
   "scripts": {
     "server": "nodemon app.js",
-    "start:client": "npm start --prefix ../flight-system-client",
+    "start:client": "npm start --prefix ../flights-app-front",
     "start:server": "nodemon app.js",
     "start": "node server.js",
     "dev": "npm-run-all --parallel start:*"
