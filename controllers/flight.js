@@ -5,11 +5,11 @@ const mongoose = require("mongoose");
 const Amadeus = require("amadeus");
 const { sendEmail } = require("../helpers");
 const stripe = require("stripe")(
-  "sk_test_51HLtFDCzlUjqqV4cO1V60KQw15iwJxRaMiFCXVjEtR6GKVig7diKM9JS86ILjg2hI0Ohwam6VLWWjZB9jMhiww9o00TF8pP1dB"
+  "sk_test_51O2dNEBn1XTEN6aVyT5ntm6QnSeDM5hcFxdSO7BYW80NacgWUP1WPzoQyGzLVnFT0utJKLIe7h4KOUQ4VRk5UA0j00KVIvivPg"
 );
 const amadeus = new Amadeus({
   clientId: process.env.AMADEUS_CLIENT_ID,
-  clientSecret: process.env.AMADEUS_CLIENT_SECRET
+  clientSecret: process.env.AMADEUS_CLIENT_SECRET,
 });
 
 exports.getOneWayFlights = async (req, res) => {
@@ -23,8 +23,8 @@ exports.getOneWayFlights = async (req, res) => {
         {
           id: i,
           travelerType: "ADULT",
-          fareOptions: ["STANDARD"]
-        }
+          fareOptions: ["STANDARD"],
+        },
       ];
     }
     for (let i = 0; i < child; i++) {
@@ -33,8 +33,8 @@ exports.getOneWayFlights = async (req, res) => {
         {
           id: adults + i + 1,
           travelerType: "CHILD",
-          fareOptions: ["STANDARD"]
-        }
+          fareOptions: ["STANDARD"],
+        },
       ];
     }
     amadeus.shopping.flightOffersSearch
@@ -48,21 +48,21 @@ exports.getOneWayFlights = async (req, res) => {
               destinationLocationCode: destination,
 
               departureDateTimeRange: {
-                date: depart
-              }
-            }
+                date: depart,
+              },
+            },
           ],
           travelers: [...adultsArray, ...childArray],
           sources: ["GDS"],
           searchCriteria: {
-            maxFlightOffers: 10
-          }
+            maxFlightOffers: 10,
+          },
         })
       )
-      .then(function(response) {
+      .then(function (response) {
         res.json({ flights: response.data });
       })
-      .catch(function(responseError) {
+      .catch(function (responseError) {
         res.json({ responseError });
       });
   } catch (e) {
@@ -72,14 +72,8 @@ exports.getOneWayFlights = async (req, res) => {
 
 exports.getTwoWayFlights = async (req, res) => {
   try {
-    const {
-      origin,
-      destination,
-      depart,
-      returnDate,
-      adults,
-      child
-    } = req.query;
+    const { origin, destination, depart, returnDate, adults, child } =
+      req.query;
     let adultsArray = [];
     let childArray = [];
     for (let i = 0; i < adults; i++) {
@@ -88,8 +82,8 @@ exports.getTwoWayFlights = async (req, res) => {
         {
           id: i,
           travelerType: "ADULT",
-          fareOptions: ["STANDARD"]
-        }
+          fareOptions: ["STANDARD"],
+        },
       ];
     }
     for (let i = 0; i < child; i++) {
@@ -98,8 +92,8 @@ exports.getTwoWayFlights = async (req, res) => {
         {
           id: adults + i + 1,
           travelerType: "CHILD",
-          fareOptions: ["STANDARD"]
-        }
+          fareOptions: ["STANDARD"],
+        },
       ];
     }
     amadeus.shopping.flightOffersSearch
@@ -113,8 +107,8 @@ exports.getTwoWayFlights = async (req, res) => {
               destinationLocationCode: destination,
 
               departureDateTimeRange: {
-                date: depart
-              }
+                date: depart,
+              },
             },
             {
               id: "2",
@@ -122,22 +116,22 @@ exports.getTwoWayFlights = async (req, res) => {
               destinationLocationCode: origin,
 
               departureDateTimeRange: {
-                date: returnDate
-              }
-            }
+                date: returnDate,
+              },
+            },
           ],
           travelers: [...adultsArray, ...childArray],
           sources: ["GDS"],
           searchCriteria: {
-            maxFlightOffers: 10
-          }
+            maxFlightOffers: 10,
+          },
         })
       )
 
-      .then(function(response) {
+      .then(function (response) {
         res.json({ flights: response.data });
       })
-      .catch(function(responseError) {
+      .catch(function (responseError) {
         res.json({ responseError });
       });
   } catch (e) {
@@ -150,12 +144,12 @@ exports.getAirline = async (req, res) => {
     const { airlineCodes } = req.query;
     amadeus.referenceData.airlines
       .get({
-        airlineCodes
+        airlineCodes,
       })
-      .then(function(response) {
+      .then(function (response) {
         res.json({ airline: response.data });
       })
-      .catch(function(responseError) {
+      .catch(function (responseError) {
         res.json({ responseError });
       });
   } catch (e) {
@@ -167,12 +161,12 @@ exports.getRecommended = async (req, res) => {
     amadeus.referenceData.recommendedLocations
       .get({
         cityCodes: "ISB,LHE,KHI",
-        travelerCountryCode: "FR"
+        travelerCountryCode: "FR",
       })
-      .then(function(response) {
+      .then(function (response) {
         res.json({ recommended: response.data });
       })
-      .catch(function(responseError) {
+      .catch(function (responseError) {
         res.json({ responseError });
       });
   } catch (e) {
@@ -184,12 +178,12 @@ exports.getPricing = async (req, res) => {
   try {
     amadeus.travel.analytics.AirTraffic.Traveled.get({
       originCityCode: "ISB",
-      period: "2020-01"
+      period: "2020-01",
     })
-      .then(function(response) {
+      .then(function (response) {
         res.json({ recommended: response.data });
       })
-      .catch(function(responseError) {
+      .catch(function (responseError) {
         res.json({ responseError });
       });
   } catch (e) {
@@ -202,7 +196,7 @@ exports.bookFlight = async (req, res) => {
     const flight = await new Flights({
       bookedBy: userId,
       bookingStatus: "Pending",
-      details
+      details,
     });
     const newFlight = await flight.save();
     if (newFlight) {
@@ -211,13 +205,13 @@ exports.bookFlight = async (req, res) => {
         const emailData = {
           to: user.email,
           subject: "Flight Booked",
-          html: `<p>Dear ${user.firstName} ${user.lastName}</p><p>Please collect your ticket from your airport after confirmation of booking, ticket id is "${newFlight._id}"</p>`
+          html: `<p>Dear ${user.firstName} ${user.lastName}</p><p>Please collect your ticket from your airport after confirmation of booking, ticket id is "${newFlight._id}"</p>`,
         };
         sendEmail(emailData);
       }
 
       await res.json({
-        message: `Please collect your ticket from your airport after confirmation of booking, ticket id is "${newFlight._id}"`
+        message: `Please collect your ticket from your airport after confirmation of booking, ticket id is "${newFlight._id}"`,
       });
     } else {
       await res.status(400).json({ error: "Could not book flight" });
@@ -231,12 +225,12 @@ exports.getUserTrips = async (req, res) => {
   try {
     const { userId } = req.params;
     const trips = await Flights.find({
-      bookedBy: mongoose.Types.ObjectId(userId)
+      bookedBy: mongoose.Types.ObjectId(userId),
     });
 
     if (trips) {
       await res.json({
-        trips
+        trips,
       });
     } else {
       await res.status(400).json({ error: "Could not find trips" });
@@ -252,7 +246,7 @@ exports.getAllTrips = async (req, res) => {
 
     if (trips) {
       await res.json({
-        trips
+        trips,
       });
     } else {
       await res.status(400).json({ error: "Could not find trips" });
@@ -267,16 +261,16 @@ exports.changeFlightStatus = async (req, res) => {
     const { flightId, status } = req.body;
     const trip = await Flights.findOneAndUpdate(
       {
-        _id: mongoose.Types.ObjectId(flightId)
+        _id: mongoose.Types.ObjectId(flightId),
       },
       {
-        bookingStatus: status
+        bookingStatus: status,
       }
     );
 
     if (trip) {
       await res.json({
-        trip
+        trip,
       });
     } else {
       await res.status(400).json({ error: "Could not cancel Flight" });
@@ -292,39 +286,39 @@ exports.confirmFlight = async (req, res) => {
     return stripe.customers
       .create({
         email: token.email,
-        source: token.id
+        source: token.id,
       })
-      .then(customer => {
+      .then((customer) => {
         stripe.charges.create(
           {
             amount: amount,
             currency: "pkr",
-            customer: customer.id
+            customer: customer.id,
           },
           { idempotencyKey: flightId }
         );
       })
-      .then(result => {
+      .then((result) => {
         Flights.findOneAndUpdate(
           {
-            _id: mongoose.Types.ObjectId(flightId)
+            _id: mongoose.Types.ObjectId(flightId),
           },
           {
-            bookingStatus: "Confirmed"
+            bookingStatus: "Confirmed",
           }
         ).then(() => {
           const emailData = {
             to: token.email,
             subject: "Flight Confirmed",
-            html: `<p>Dear customer,</p><p>Your payment has been made successfully and your flight with id (${flightId}) has been confirmed successfully</p>`
+            html: `<p>Dear customer,</p><p>Your payment has been made successfully and your flight with id (${flightId}) has been confirmed successfully</p>`,
           };
           sendEmail(emailData);
           res.json({
-            result
+            result,
           });
         });
       })
-      .catch(error => {
+      .catch((error) => {
         res.json({ error: "Could not make payment", message: error.message });
       });
   } catch (e) {
@@ -335,7 +329,7 @@ exports.confirmFlight = async (req, res) => {
 exports.uploadEditorImage = (req, res) => {
   res.json({
     uploaded: true,
-    url: URL.createObjectURL(req.file)
+    url: URL.createObjectURL(req.file),
   });
 };
 
@@ -356,14 +350,14 @@ exports.createWorldTour = async (req, res) => {
               price: details.packagePrice,
               description: details.packageDescription,
               image: req.file.filename,
-              bookedBy: []
-            }
-          }
+              bookedBy: [],
+            },
+          },
         }
       );
       await res.json({
         success: true,
-        message: `Tour Created Successfully`
+        message: `Tour Created Successfully`,
       });
     } else {
       const newDeal = await Deals.create({
@@ -376,12 +370,12 @@ exports.createWorldTour = async (req, res) => {
           price: details.packagePrice,
           description: details.packageDescription,
           image: req.file.filename,
-          bookedBy: []
-        }
+          bookedBy: [],
+        },
       });
       await res.json({
         success: true,
-        message: `Tour Created Successfully`
+        message: `Tour Created Successfully`,
       });
     }
   } catch (error) {
@@ -398,7 +392,7 @@ exports.createUmrahDeals = async (req, res) => {
       numberOfPeople,
       numberOfDays,
       packagePrice,
-      packageDescription
+      packageDescription,
     } = details;
 
     const newDeal = await Deals.create({
@@ -411,12 +405,12 @@ exports.createUmrahDeals = async (req, res) => {
         numberOfPeople,
         image: req.file.filename,
         description: packageDescription,
-        bookedBy: []
-      }
+        bookedBy: [],
+      },
     });
     await res.json({
       success: true,
-      message: `Package Created Successfully`
+      message: `Package Created Successfully`,
     });
   } catch (error) {
     console.log("error", error.message);
@@ -430,7 +424,7 @@ exports.getWorldTour = async (req, res) => {
 
     await res.json({
       success: true,
-      deals
+      deals,
     });
   } catch (error) {
     console.log("error", error.message);
@@ -441,12 +435,12 @@ exports.getUmrahDeals = async (req, res) => {
   try {
     const deals = await Deals.aggregate([
       { $match: { type: "UmrahDeals" } },
-      { $unwind: "$details.packages" }
+      { $unwind: "$details.packages" },
     ]);
 
     await res.json({
       success: true,
-      deals
+      deals,
     });
   } catch (error) {
     console.log("error", error.message);
@@ -460,18 +454,20 @@ exports.getWorldTourPackage = async (req, res) => {
     const deals = await Deals.aggregate([
       { $match: { type: "WorldTour", "details.country": country } },
       { $unwind: "$details.packages" },
-      { $match: { "details.packages._id": mongoose.Types.ObjectId(packageId) } }
+      {
+        $match: { "details.packages._id": mongoose.Types.ObjectId(packageId) },
+      },
     ]);
     const result = await Deals.populate(deals, [
       {
         path: "details.packages.bookedBy",
         model: "Users",
-        select: "firstName lastName email mobileNo passportNo"
-      }
+        select: "firstName lastName email mobileNo passportNo",
+      },
     ]);
     await res.json({
       success: true,
-      deals: result
+      deals: result,
     });
   } catch (error) {
     console.log("error", error.message);
@@ -484,18 +480,18 @@ exports.getUmrahDealPackage = async (req, res) => {
     const { dealId } = req.query;
     const deals = await Deals.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(dealId) } },
-      { $unwind: "$details.packages" }
+      { $unwind: "$details.packages" },
     ]);
     const result = await Deals.populate(deals, [
       {
         path: "details.packages.bookedBy",
         model: "Users",
-        select: "firstName lastName email mobileNo passportNo"
-      }
+        select: "firstName lastName email mobileNo passportNo",
+      },
     ]);
     await res.json({
       success: true,
-      deals: result
+      deals: result,
     });
   } catch (error) {
     console.log("error", error.message);
@@ -510,38 +506,38 @@ exports.bookWorldTour = async (req, res) => {
     return stripe.customers
       .create({
         email: token.email,
-        source: token.id
+        source: token.id,
       })
-      .then(customer => {
+      .then((customer) => {
         stripe.charges.create(
           {
             amount: amount,
             currency: "pkr",
-            customer: customer.id
+            customer: customer.id,
           },
           { idempotencyKey: packageId }
         );
       })
-      .then(result => {
+      .then((result) => {
         Deals.findOneAndUpdate(
           {
             _id: dealId,
-            "details.packages._id": mongoose.Types.ObjectId(packageId)
+            "details.packages._id": mongoose.Types.ObjectId(packageId),
           },
           {
             $addToSet: {
-              "details.packages.$.bookedBy": mongoose.Types.ObjectId(userId)
-            }
+              "details.packages.$.bookedBy": mongoose.Types.ObjectId(userId),
+            },
           },
 
           { new: true }
-        ).then(deal => {
+        ).then((deal) => {
           res.json({
-            deal
+            deal,
           });
         });
       })
-      .catch(error => {
+      .catch((error) => {
         res.json({ error: "Could not make payment", message: error.message });
       });
   } catch (e) {
@@ -556,20 +552,20 @@ exports.deleteWorldTourPackage = async (req, res) => {
 
     Deals.findOneAndUpdate(
       {
-        _id: dealId
+        _id: dealId,
       },
       {
         $pull: {
           "details.packages": {
-            _id: mongoose.Types.ObjectId(packageId)
-          }
-        }
+            _id: mongoose.Types.ObjectId(packageId),
+          },
+        },
       },
 
       { new: true }
-    ).then(deal => {
+    ).then((deal) => {
       res.json({
-        deal
+        deal,
       });
     });
   } catch (e) {
@@ -582,10 +578,10 @@ exports.deleteUmrahDealPackage = async (req, res) => {
     const { dealId } = req.body;
 
     Deals.findOneAndRemove({
-      _id: dealId
-    }).then(deal => {
+      _id: dealId,
+    }).then((deal) => {
       res.json({
-        deal
+        deal,
       });
     });
   } catch (e) {
